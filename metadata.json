@@ -1,0 +1,7 @@
+{
+  "name": "AI 닮은꼴 찾기 (CelebLookalike)",
+  "description": "Google Gemini 2.5 Flash 모델을 사용하여 당신과 닮은 유명인을 찾아주는 AI 웹 애플리케이션입니다.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
