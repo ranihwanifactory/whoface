@@ -1,15 +1,16 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "../types";
 
-const apiKey = process.env.API_KEY;
-
-// Initialize the client via the specific constructor pattern required
-const ai = new GoogleGenAI({ apiKey: apiKey });
-
 export const analyzeImage = async (base64Data: string, mimeType: string): Promise<AnalysisResult> => {
+  // Initialize the client inside the function to prevent top-level execution errors.
+  // This ensures the app loads even if the environment variables aren't immediately ready,
+  // and creates a new instance with the current key for every request.
+  const apiKey = process.env.API_KEY;
   if (!apiKey) {
     throw new Error("API Key is missing. Please check your environment configuration.");
   }
+  
+  const ai = new GoogleGenAI({ apiKey: apiKey });
 
   // Define the JSON schema for the response
   const responseSchema = {
@@ -85,6 +86,7 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
 
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
-    throw new Error("이미지를 분석하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+    throw new Error(`이미지 분석 실패: ${errorMessage}`);
   }
 };
