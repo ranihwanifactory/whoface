@@ -2,10 +2,16 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "../types";
 
 export const analyzeImage = async (base64Data: string, mimeType: string): Promise<AnalysisResult> => {
-  // Initialize the client with the API key from the environment.
-  // We access process.env.API_KEY directly in the constructor to ensure compatibility 
-  // with build tools that perform static replacement.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Initialize the client with the API key.
+  // We check both process.env.API_KEY (standard) and import.meta.env.VITE_API_KEY (Vite/Vercel)
+  // to ensure compatibility across different build and deployment environments.
+  const apiKey = (import.meta as any).env?.VITE_API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
+
+  if (!apiKey) {
+    throw new Error("API Key is missing. Please check your environment configuration (VITE_API_KEY or API_KEY).");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
 
   // Define the JSON schema for the response
   const responseSchema = {
@@ -85,7 +91,7 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
     
     // Provide a clearer error if it seems related to the API key or authentication
     if (errorMessage.includes("API key") || errorMessage.includes("403") || errorMessage.includes("401")) {
-      throw new Error("API 키 오류: 환경 변수(API_KEY) 설정을 확인해주세요.");
+      throw new Error("API 키 오류: Vercel 환경 변수(VITE_API_KEY) 설정을 확인해주세요.");
     }
     
     throw new Error(`이미지 분석 실패: ${errorMessage}`);
