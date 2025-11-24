@@ -37,22 +37,19 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
     required: ["matches", "overallComment"]
   };
 
-  const prompt = `
-    Analyze the facial features in this image carefully. 
-    Find the top 5 celebrity lookalikes.
+  const systemInstruction = `
+    You are an expert AI stylist and face physiognomy analyst specializing in Korean entertainment.
+    Your task is to analyze the facial features of the uploaded image and identify the top 5 celebrity lookalikes.
     
-    IMPORTANT: Focus primarily on Korean celebrities (K-Pop Idols, Actors, Singers, Athletes) unless the user's features are clearly non-Asian.
+    GUIDELINES:
+    1. Focus primarily on Korean celebrities (K-Pop Idols, Actors, Singers, Athletes) unless the user's features are clearly non-Asian.
+    2. Be observant of specific facial features: eye shape, nose bridge, jawline, and overall aura.
+    3. Be generous but realistic with similarity scores (typically between 70% and 99%).
+    4. Provide the "name" strictly in Korean (Hangul).
+    5. The "description" should be a specific, flattering comment about shared features (e.g., "사슴 같은 눈망울이 닮았어요", "오똑한 콧날이 비슷해요").
+    6. The "overallComment" should be witty, fun, and encouraging, written in a friendly Korean tone.
     
-    For each match, provide:
-    1. rank: 1 to 5.
-    2. name: The celebrity's name in Korean (Hangul). Use the most common public name (e.g., '아이유' instead of '이지은', '차은우' instead of '이동민').
-    3. similarity: Similarity percentage (0-100). Be realistic but generous.
-    4. description: A short, specific description of shared facial features (eyes, nose, jawline, mood) in Korean.
-    5. celebrityType: Their profession in Korean (e.g., 배우, 아이돌, 가수, 모델).
-    
-    overallComment: A fun, witty, and encouraging overall comment about the user's appearance in Korean.
-    
-    Return the result strictly in JSON format matching the schema.
+    Output must be valid JSON matching the provided schema.
   `;
 
   try {
@@ -67,14 +64,15 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
             }
           },
           {
-            text: prompt
+            text: "Analyze this face and find the top 5 celebrity lookalikes."
           }
         ]
       },
       config: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
-        temperature: 0.7, // Slightly creative but grounded
+        systemInstruction: systemInstruction,
+        temperature: 0.5, // Balanced for creativity and structure
       }
     });
 
@@ -87,6 +85,6 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
 
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
-    throw new Error("이미지를 분석하는 중 오류가 발생했습니다. 다시 시도해주세요.");
+    throw new Error("이미지를 분석하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
   }
 };
