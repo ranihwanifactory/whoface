@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import Header from './components/Header';
 import UploadArea from './components/UploadArea';
 import ResultCard from './components/ResultCard';
+import InstallPrompt from './components/InstallPrompt';
 import { analyzeImage } from './services/geminiService';
 import { ImageFile, AnalysisResult } from './types';
-import { RefreshCw, Camera, AlertCircle, Share2 } from 'lucide-react';
+import { RefreshCw, Camera, AlertCircle, Share2, Check } from 'lucide-react';
 
 const App: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<ImageFile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [shareBtnText, setShareBtnText] = useState('결과 공유하기');
 
   const handleImageSelected = (image: ImageFile | null) => {
     setSelectedImage(image);
@@ -42,18 +44,28 @@ const App: React.FC = () => {
   };
 
   const handleShare = async () => {
-    if (navigator.share && result) {
-      try {
-        await navigator.share({
-          title: '내 닮은꼴 연예인 찾기 결과',
-          text: `제 닮은꼴 1위는 ${result.matches[0].name} (${result.matches[0].similarity}%) 입니다! 당신도 확인해보세요.`,
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.log('Error sharing', err);
+    if (!result) return;
+
+    const shareData = {
+      title: '내 닮은꼴 연예인 찾기 결과',
+      text: `제 닮은꼴 1위는 ${result.matches[0].name} (${result.matches[0].similarity}%) 입니다! 당신도 확인해보세요.`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setShareBtnText('링크 복사완료!');
+        setTimeout(() => setShareBtnText('결과 공유하기'), 2000);
       }
-    } else {
-      alert('공유하기 기능이 지원되지 않는 브라우저입니다.');
+    } catch (err) {
+      console.log('Error sharing', err);
+      // Fallback if share fails for some reason
+      await navigator.clipboard.writeText(window.location.href);
+      setShareBtnText('링크 복사완료!');
+      setTimeout(() => setShareBtnText('결과 공유하기'), 2000);
     }
   };
 
@@ -123,16 +135,23 @@ const App: React.FC = () => {
                 
                 <button
                   onClick={handleShare}
-                  className="flex items-center px-6 py-3 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 rounded-full font-medium transition-colors border border-indigo-500/30"
+                  className={`flex items-center px-6 py-3 rounded-full font-medium transition-colors border ${
+                    shareBtnText === '링크 복사완료!' 
+                    ? 'bg-green-600/20 text-green-300 border-green-500/30' 
+                    : 'bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border-indigo-500/30'
+                  }`}
                 >
-                  <Share2 className="w-5 h-5 mr-2" />
-                  결과 공유하기
+                  {shareBtnText === '링크 복사완료!' ? <Check className="w-5 h-5 mr-2" /> : <Share2 className="w-5 h-5 mr-2" />}
+                  {shareBtnText}
                 </button>
               </div>
             </section>
           )}
         </div>
       </div>
+      
+      {/* Install Prompt Component */}
+      <InstallPrompt />
     </div>
   );
 };

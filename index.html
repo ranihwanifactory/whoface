@@ -2,8 +2,27 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>AI 닮은꼴 찾기</title>
+    
+    <!-- PWA / Mobile Meta Tags -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="닮은꼴찾기">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><text x=%2250%22 y=%2250%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2260%22>✨</text></svg>">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="AI 닮은꼴 찾기" />
+    <meta property="og:description" content="AI가 분석해주는 내 닮은꼴 연예인은 누구일까요? 지금 바로 확인해보세요!" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1593085512500-bfd427348d45?q=80&w=1200&auto=format&fit=crop" />
+    <meta property="og:url" content="" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -23,6 +42,14 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #555;
+      }
+      /* PWA Install Prompt Animation */
+      @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .animate-slide-up {
+        animation: slideUp 0.5s ease-out forwards;
       }
     </style>
   <script type="importmap">
