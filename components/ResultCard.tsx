@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CelebrityMatch } from '../types';
-import { Star, Trophy, Medal, User } from 'lucide-react';
+import { Trophy, Star, Crown, Medal, User } from 'lucide-react';
 
 interface ResultCardProps {
   match: CelebrityMatch;
@@ -12,13 +12,10 @@ const ResultCard: React.FC<ResultCardProps> = ({ match }) => {
   useEffect(() => {
     const fetchImage = async () => {
       if (!match.name) return;
-      
       try {
-        // Fetch image from Korean Wikipedia
-        const searchUrl = `https://ko.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&titles=${encodeURIComponent(match.name)}&pithumbsize=200&origin=*`;
+        const searchUrl = `https://ko.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&titles=${encodeURIComponent(match.name)}&pithumbsize=300&origin=*`;
         const response = await fetch(searchUrl);
         const data = await response.json();
-        
         const pages = data.query?.pages;
         if (pages) {
           const pageId = Object.keys(pages)[0];
@@ -27,85 +24,102 @@ const ResultCard: React.FC<ResultCardProps> = ({ match }) => {
           }
         }
       } catch (error) {
-        console.error("Error fetching image for", match.name, error);
+        console.error("Error fetching image", error);
       }
     };
-
     fetchImage();
   }, [match.name]);
 
-  const getRankBadgeColor = (rank: number) => {
-    switch (rank) {
-      case 1: return "bg-yellow-500 text-yellow-950";
-      case 2: return "bg-slate-300 text-slate-900";
-      case 3: return "bg-amber-600 text-white";
-      default: return "bg-slate-700 text-slate-300";
-    }
-  };
+  // Rank 1 Design (Legendary Card)
+  if (match.rank === 1) {
+    return (
+      <div className="relative w-full transform transition-all hover:scale-105 duration-300">
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 rounded-3xl blur opacity-70 animate-pulse"></div>
+        <div className="relative bg-gradient-to-br from-slate-900 to-indigo-900 border-[3px] border-yellow-300 rounded-3xl p-6 shadow-2xl overflow-hidden">
+          
+          {/* Confetti Background inside card */}
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-yellow-200 to-transparent"></div>
 
-  const getBorderColor = (rank: number) => {
-    switch (rank) {
-      case 1: return "border-yellow-500/50 bg-yellow-500/5";
-      case 2: return "border-slate-400/50 bg-slate-500/5";
-      case 3: return "border-amber-600/50 bg-amber-600/5";
-      default: return "border-slate-700 bg-slate-800/50";
-    }
-  };
+          <div className="flex flex-col items-center text-center">
+            <div className="absolute top-0 right-8 w-12 h-16 bg-yellow-500 rounded-b-lg flex items-center justify-center shadow-lg z-10">
+                <Crown className="w-8 h-8 text-white drop-shadow-md" />
+            </div>
 
-  return (
-    <div className={`relative p-4 rounded-xl border ${getBorderColor(match.rank)} backdrop-blur-sm transition-all duration-300 hover:scale-[1.01]`}>
-      
-      <div className="flex gap-4">
-        {/* Image Section */}
-        <div className="relative flex-shrink-0">
-          <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-800 border border-slate-700 shadow-inner">
-            {imageUrl ? (
-              <img 
-                src={imageUrl} 
-                alt={match.name} 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-600">
-                <User className="w-8 h-8" />
+            <div className="mb-2">
+                <span className="inline-block px-4 py-1 rounded-full bg-yellow-400 text-yellow-900 font-black text-sm shadow-md uppercase tracking-wider">
+                    🏆 전설의 닮은꼴 발견!
+                </span>
+            </div>
+
+            <h2 className="text-3xl font-black text-white mb-1 drop-shadow-lg">{match.name}</h2>
+            <p className="text-yellow-300 font-bold mb-4 flex items-center gap-1">
+                <Star className="w-4 h-4 fill-yellow-300" /> 
+                {match.celebrityType}
+                <Star className="w-4 h-4 fill-yellow-300" />
+            </p>
+
+            <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.6)] overflow-hidden bg-slate-800 mb-4 group">
+              {imageUrl ? (
+                <img src={imageUrl} alt={match.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center"><User className="w-16 h-16 text-slate-500" /></div>
+              )}
+            </div>
+
+            <div className="w-full bg-black/30 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-slate-300 font-bold">싱크로율 파워</span>
+                <span className="text-2xl font-black text-yellow-400">{match.similarity}%</span>
               </div>
-            )}
-          </div>
-          <div className={`absolute -top-2 -left-2 w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm shadow-lg border-2 border-slate-900 ${getRankBadgeColor(match.rank)}`}>
-            {match.rank}
-          </div>
-        </div>
-
-        {/* Content Section */}
-        <div className="flex-1 min-w-0 flex flex-col justify-center">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex flex-col">
-              <h3 className="font-bold text-lg text-white leading-none truncate pr-2">{match.name}</h3>
-              <span className="text-xs text-indigo-300 font-medium mt-1">{match.celebrityType}</span>
+              <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-yellow-400 to-red-500 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.5)]"
+                  style={{ width: `${match.similarity}%` }}
+                ></div>
+              </div>
+              <p className="mt-3 text-white font-medium break-keep leading-relaxed">
+                "{match.description}"
+              </p>
             </div>
-            <div className="text-right">
-              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400">
-                {match.similarity}%
-              </span>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full h-1.5 bg-slate-700/50 rounded-full overflow-hidden mt-1">
-            <div 
-              className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full"
-              style={{ width: `${match.similarity}%` }}
-            ></div>
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Description */}
-      <div className="mt-3 bg-slate-900/40 rounded-lg p-3 text-sm text-slate-300 border border-slate-700/30">
-        <p className="leading-relaxed">
-          <span className="text-indigo-400 mr-2">💡</span>
-          {match.description}
-        </p>
+  // Rank 2-5 Design (Rare/Common Cards)
+  const isRank2Or3 = match.rank <= 3;
+  const borderColor = isRank2Or3 ? "border-indigo-300" : "border-slate-600";
+  const iconColor = match.rank === 2 ? "text-slate-300" : match.rank === 3 ? "text-amber-600" : "text-slate-500";
+
+  return (
+    <div className={`bg-white/10 backdrop-blur-md rounded-2xl p-4 border-2 ${borderColor} flex items-center gap-4 hover:bg-white/20 transition-colors`}>
+      <div className="relative flex-shrink-0">
+        <div className={`w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 border-2 ${borderColor}`}>
+          {imageUrl ? (
+            <img src={imageUrl} alt={match.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center"><User className="w-8 h-8 text-slate-500" /></div>
+          )}
+        </div>
+        <div className={`absolute -top-2 -left-2 w-7 h-7 bg-white rounded-full flex items-center justify-center font-bold text-slate-900 border-2 border-slate-900 shadow-md`}>
+          {match.rank}
+        </div>
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-bold text-lg text-white leading-tight">{match.name}</h3>
+            <p className={`text-xs font-bold ${isRank2Or3 ? 'text-indigo-300' : 'text-slate-400'}`}>
+              {match.celebrityType}
+            </p>
+          </div>
+          <div className="text-right">
+             <span className="text-xl font-black text-indigo-200">{match.similarity}%</span>
+          </div>
+        </div>
+        <p className="text-sm text-slate-300 mt-1 truncate">{match.description}</p>
       </div>
     </div>
   );

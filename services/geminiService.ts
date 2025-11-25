@@ -3,8 +3,6 @@ import { AnalysisResult } from "../types";
 
 export const analyzeImage = async (base64Data: string, mimeType: string): Promise<AnalysisResult> => {
   // Initialize the client with the API key.
-  // We check both process.env.API_KEY (standard) and import.meta.env.VITE_API_KEY (Vite/Vercel)
-  // to ensure compatibility across different build and deployment environments.
   const apiKey = (import.meta as any).env?.VITE_API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
 
   if (!apiKey) {
@@ -25,31 +23,34 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
             rank: { type: Type.INTEGER, description: "Rank from 1 to 5" },
             name: { type: Type.STRING, description: "Name of the celebrity in Korean" },
             similarity: { type: Type.INTEGER, description: "Similarity percentage (0-100)" },
-            description: { type: Type.STRING, description: "Short explanation of similar facial features in Korean" },
-            celebrityType: { type: Type.STRING, description: "Occupation in Korean" }
+            description: { type: Type.STRING, description: "Fun explanation for kids (e.g., comparing to cute animals or hero traits)" },
+            celebrityType: { type: Type.STRING, description: "Occupation or Title (e.g., 'Singing Princess', 'Cool Hero')" }
           },
           required: ["rank", "name", "similarity", "description", "celebrityType"]
         }
       },
       overallComment: {
         type: Type.STRING,
-        description: "A fun and encouraging overall comment in Korean."
+        description: "A magical and exciting comment for a child."
       }
     },
     required: ["matches", "overallComment"]
   };
 
   const systemInstruction = `
-    You are an expert AI stylist and face physiognomy analyst specializing in Korean entertainment.
-    Your task is to analyze the facial features of the uploaded image and identify the top 5 celebrity lookalikes.
+    You are a 'Magic Mirror' in a fantasy game world for kids.
+    Your task is to look at the child's (or user's) photo and find their celebrity lookalikes in a fun, encouraging, and gamified way.
     
     GUIDELINES:
-    1. Focus primarily on Korean celebrities (K-Pop Idols, Actors, Singers, Athletes) unless the user's features are clearly non-Asian.
-    2. Be observant of specific facial features: eye shape, nose bridge, jawline, and overall aura.
-    3. Be generous but realistic with similarity scores (typically between 70% and 99%).
-    4. Provide the "name" strictly in Korean (Hangul).
-    5. The "description" should be a specific, flattering comment about shared features (e.g., "사슴 같은 눈망울이 닮았어요", "오똑한 콧날이 비슷해요").
-    6. The "overallComment" should be witty, fun, and encouraging, written in a friendly Korean tone.
+    1. **Tone:** Super enthusiastic, magical, and kind. Use emojis! 🌟✨
+    2. **Lookalikes:** Focus on K-Pop Idols (very popular with kids), actors, or animated character-like vibes if applicable.
+    3. **Description:** Do NOT use complex physiognomy terms. Use comparisons kids understand:
+       - "puppy eyes" (강아지 같은 눈망울)
+       - "shining smile" (반짝반짝 미소)
+       - "prince/princess vibes" (왕자님/공주님 분위기)
+    4. **CelebrityType:** Instead of just "Actor", use cool titles like "Drama Hero (드라마 주인공)", "Dancing Fairy (춤추는 요정)", "Stage King (무대 위의 왕)".
+    5. **Similarity:** Be generous! Give high scores to make them happy (80-99%).
+    6. **Overall Comment:** Celebrate their look! E.g., "Wow! You look like a main character!" (우와! 동화 속 주인공 같아요!)
     
     Output must be valid JSON matching the provided schema.
   `;
@@ -66,7 +67,7 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
             }
           },
           {
-            text: "Analyze this face and find the top 5 celebrity lookalikes."
+            text: "Who does this person look like? Tell me in a fun way!"
           }
         ]
       },
@@ -74,7 +75,7 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
         responseMimeType: "application/json",
         responseSchema: responseSchema,
         systemInstruction: systemInstruction,
-        temperature: 0.5, // Balanced for creativity and structure
+        temperature: 0.7, // Higher creativity for fun responses
       }
     });
 
@@ -89,11 +90,10 @@ export const analyzeImage = async (base64Data: string, mimeType: string): Promis
     console.error("Gemini Analysis Error:", error);
     const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
     
-    // Provide a clearer error if it seems related to the API key or authentication
     if (errorMessage.includes("API key") || errorMessage.includes("403") || errorMessage.includes("401")) {
-      throw new Error("API 키 오류: Vercel 환경 변수(VITE_API_KEY) 설정을 확인해주세요.");
+      throw new Error("마법 열쇠(API Key)가 없어요! 설정을 확인해주세요.");
     }
     
-    throw new Error(`이미지 분석 실패: ${errorMessage}`);
+    throw new Error(`마법 거울이 잠시 쉬고 있어요: ${errorMessage}`);
   }
 };

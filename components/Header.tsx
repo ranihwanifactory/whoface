@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Sparkles, ScanFace, Share2, Check } from 'lucide-react';
+import { Wand2, Share2, Check, Sparkles } from 'lucide-react';
 
 const Header: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleShareApp = async () => {
     const shareData = {
-      title: 'AI 닮은꼴 찾기',
-      text: 'AI가 분석해주는 내 닮은꼴 연예인은 누구일까요? 지금 바로 확인해보세요!',
+      title: '✨ 마법의 닮은꼴 거울',
+      text: '마법 거울아, 세상에서 내가 누구랑 제일 닮았니? 🧚‍♀️',
       url: window.location.href,
     };
 
@@ -20,7 +20,6 @@ const Header: React.FC = () => {
         setTimeout(() => setCopied(false), 2000);
       }
     } catch (err) {
-      // Fallback
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -28,30 +27,39 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="w-full py-8 flex flex-col items-center justify-center text-center px-4 relative">
+    <header className="w-full py-6 flex flex-col items-center justify-center text-center px-4 relative z-10">
       <button 
         onClick={handleShareApp}
-        className="absolute top-4 right-4 p-2 bg-slate-800/50 hover:bg-slate-700/50 rounded-full text-slate-400 hover:text-indigo-300 transition-colors border border-slate-700/50 backdrop-blur-sm"
-        aria-label="앱 공유하기"
+        className="absolute top-4 right-4 p-3 bg-white/20 hover:bg-white/30 rounded-full text-white transition-all hover:scale-110 border-2 border-white/30 shadow-lg backdrop-blur-md"
+        aria-label="친구에게 자랑하기"
       >
-        {copied ? <Check className="w-5 h-5 text-green-400" /> : <Share2 className="w-5 h-5" />}
+        {copied ? <Check className="w-6 h-6 text-yellow-300" /> : <Share2 className="w-6 h-6" />}
       </button>
 
-      <div className="flex items-center gap-2 mb-2">
-        <div className="p-3 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/20">
-          <ScanFace className="w-8 h-8 text-white" />
+      <div className="animate-bounce-slow mb-2 relative">
+        <div className="absolute -top-4 -right-4 animate-pulse">
+            <Sparkles className="w-8 h-8 text-yellow-300" />
+        </div>
+        <div className="absolute -bottom-2 -left-4 animate-pulse delay-100">
+            <Sparkles className="w-6 h-6 text-pink-300" />
+        </div>
+        <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-[0_0_20px_rgba(139,92,246,0.5)] border-4 border-white/20 transform rotate-3">
+          <Wand2 className="w-10 h-10 text-white" />
         </div>
       </div>
-      <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 tracking-tight">
-        AI 닮은꼴 찾기
+      
+      <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] tracking-tight mt-4" 
+          style={{ textShadow: '3px 3px 0px #7c3aed' }}>
+        마법의 닮은꼴 거울
       </h1>
-      <p className="mt-4 text-slate-400 max-w-md text-lg">
-        Gemini AI가 당신의 얼굴을 분석하여<br className="hidden sm:block" /> 
-        <span className="text-indigo-400 font-semibold flex items-center justify-center gap-1 inline-flex">
-          싱크로율 Top 5 <Sparkles className="w-4 h-4" />
-        </span>
-        연예인을 찾아드립니다.
-      </p>
+      
+      <div className="mt-4 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 border border-white/20 shadow-xl">
+        <p className="text-white md:text-lg font-bold flex items-center gap-2">
+          <span className="text-2xl">🧚‍♀️</span>
+          거울아 거울아, 내가 누구랑 닮았니?
+          <span className="text-2xl">✨</span>
+        </p>
+      </div>
     </header>
   );
 };
