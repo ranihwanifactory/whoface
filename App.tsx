@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import Header from './components/Header';
 import UploadArea from './components/UploadArea';
 import ResultCard from './components/ResultCard';
-import InstallPrompt from './components/InstallPrompt';
+import { useInstallPrompt } from './components/InstallPrompt';
 import { analyzeImage } from './services/geminiService';
 import { ImageFile, AnalysisResult } from './types';
-import { RefreshCw, Share2, AlertCircle, Check } from 'lucide-react';
+import { RefreshCw, Share2, AlertCircle, Check, Download } from 'lucide-react';
 
 const App: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<ImageFile | null>(null);
@@ -13,6 +13,9 @@ const App: React.FC = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [shareBtnText, setShareBtnText] = useState('결과 공유');
+  
+  // PWA Install Hook
+  const { showInstallButton, triggerInstall } = useInstallPrompt();
 
   const handleImageSelected = (image: ImageFile | null) => {
     setSelectedImage(image);
@@ -118,10 +121,11 @@ const App: React.FC = () => {
                 </div>
               </div>
 
+              {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={handleReset}
-                  className="flex items-center justify-center px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm"
+                  className={`flex items-center justify-center px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm ${showInstallButton ? 'col-span-2' : ''}`}
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   다시 하기
@@ -138,13 +142,21 @@ const App: React.FC = () => {
                   {shareBtnText.includes('복사') ? <Check className="w-4 h-4 mr-2" /> : <Share2 className="w-4 h-4 mr-2" />}
                   {shareBtnText}
                 </button>
+
+                {showInstallButton && (
+                  <button
+                    onClick={triggerInstall}
+                    className="flex items-center justify-center px-4 py-3.5 bg-slate-900 text-white border border-slate-900 rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-sm"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    앱 설치
+                  </button>
+                )}
               </div>
             </section>
           )}
         </div>
       </div>
-      
-      <InstallPrompt />
     </div>
   );
 };
