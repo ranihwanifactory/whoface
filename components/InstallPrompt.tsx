@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, X, Share as ShareIcon } from 'lucide-react';
+import { Download, X, Share as ShareIcon, Sparkles } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -60,25 +60,25 @@ const InstallPrompt: React.FC = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up">
-      <div className="bg-slate-800/90 backdrop-blur-md border border-indigo-500/30 p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-indigo-900 to-purple-900 backdrop-blur-lg border-2 border-yellow-400/50 p-4 rounded-3xl shadow-[0_0_20px_rgba(168,85,247,0.4)] flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="bg-indigo-600 p-2 rounded-lg">
-            <Download className="w-6 h-6 text-white" />
+          <div className="bg-yellow-400 p-2 rounded-xl shadow-lg">
+            <Sparkles className="w-6 h-6 text-indigo-900" />
           </div>
           <div>
-            <h3 className="font-bold text-white text-sm">앱 설치하기</h3>
-            <p className="text-xs text-slate-300">
+            <h3 className="font-black text-white text-base">마법 거울 보관하기</h3>
+            <p className="text-xs text-indigo-200 font-medium">
               {isIOS 
-                ? "홈 화면에 추가하여 앱처럼 사용하세요" 
-                : "더 빠르고 편리하게 이용하세요"}
+                ? "홈 화면에 추가해서 언제든 사용해봐요!" 
+                : "앱을 설치하고 친구들과 함께 놀아요!"}
             </p>
           </div>
         </div>
 
         {isIOS ? (
-          <div className="flex items-center gap-2 text-xs text-indigo-300 bg-indigo-900/30 px-3 py-1.5 rounded-lg">
+          <div className="flex items-center gap-2 text-xs text-white bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
             <span><ShareIcon className="w-3 h-3 inline mb-0.5" /> 공유 &gt; 홈 화면에 추가</span>
-            <button onClick={handleClose} className="ml-2 text-slate-400 hover:text-white">
+            <button onClick={handleClose} className="ml-2 text-indigo-200 hover:text-white">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -86,11 +86,11 @@ const InstallPrompt: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleInstallClick}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
+              className="bg-yellow-400 hover:bg-yellow-300 text-indigo-900 text-sm font-black px-4 py-2 rounded-xl transition-all shadow-md transform hover:scale-105"
             >
               설치
             </button>
-            <button onClick={handleClose} className="p-1 text-slate-400 hover:text-white">
+            <button onClick={handleClose} className="p-2 text-indigo-300 hover:text-white">
               <X className="w-5 h-5" />
             </button>
           </div>
