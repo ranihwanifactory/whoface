@@ -9,7 +9,8 @@ interface UploadAreaProps {
 }
 
 const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage, isLoading }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const processFile = (file: File) => {
@@ -37,6 +38,8 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage,
     if (e.target.files && e.target.files[0]) {
       processFile(e.target.files[0]);
     }
+    // Reset value to allow selecting the same file again if needed
+    e.target.value = '';
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -60,9 +63,16 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage,
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onImageSelected(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+  };
+
+  const triggerCamera = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    cameraInputRef.current?.click();
+  };
+
+  const triggerGallery = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    galleryInputRef.current?.click();
   };
 
   if (selectedImage) {
@@ -99,8 +109,25 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage,
 
   return (
     <div className="w-full max-w-sm mx-auto">
+      {/* Hidden Inputs */}
+      <input
+        type="file"
+        ref={galleryInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/*"
+      />
+      <input
+        type="file"
+        ref={cameraInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/*"
+        capture="user" // This forces camera launch on mobile
+      />
+      
       <div
-        onClick={() => fileInputRef.current?.click()}
+        onClick={triggerGallery} // Default click opens gallery
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -113,32 +140,33 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage,
           }
         `}
       >
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          accept="image/*"
-        />
-        
         <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 text-slate-400">
           <UploadCloud className="w-8 h-8" />
         </div>
 
         <h3 className="text-lg font-bold text-slate-800 mb-2">사진 업로드</h3>
         <p className="text-slate-500 text-sm text-center leading-relaxed max-w-[200px]">
-          터치하여 앨범에서 선택하거나<br/>카메라로 직접 촬영하세요
+          아래 버튼을 눌러 촬영하거나<br/>앨범에서 선택하세요
         </p>
 
         <div className="mt-8 flex gap-3 w-full max-w-[240px]">
-          <div className="flex-1 bg-indigo-50 py-3 rounded-xl flex items-center justify-center gap-2 text-indigo-600 text-sm font-medium">
+          {/* Camera Button */}
+          <button 
+            onClick={triggerCamera}
+            className="flex-1 bg-indigo-50 py-3 rounded-xl flex items-center justify-center gap-2 text-indigo-600 text-sm font-medium hover:bg-indigo-100 transition-colors"
+          >
             <Camera className="w-4 h-4" />
             촬영
-          </div>
-          <div className="flex-1 bg-slate-100 py-3 rounded-xl flex items-center justify-center gap-2 text-slate-600 text-sm font-medium">
+          </button>
+          
+          {/* Gallery Button */}
+          <button 
+            onClick={triggerGallery}
+            className="flex-1 bg-slate-100 py-3 rounded-xl flex items-center justify-center gap-2 text-slate-600 text-sm font-medium hover:bg-slate-200 transition-colors"
+          >
             <ImageIcon className="w-4 h-4" />
             앨범
-          </div>
+          </button>
         </div>
       </div>
     </div>
