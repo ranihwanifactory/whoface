@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, X, Share as ShareIcon, Sparkles } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -9,23 +9,11 @@ interface BeforeInstallPromptEvent extends Event {
 const InstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // Check if iOS
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    // Check if standalone (already installed)
+    // Only show prompt if not in standalone mode
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-
-    if (isIOSDevice && !isStandalone) {
-      // Show iOS instruction after a small delay
-      const timer = setTimeout(() => {
-        // Simple heuristic: don't show if user closed it before in this session (could use localStorage for persistence)
-        setShowPrompt(true);
-      }, 3000);
-      setIsIOS(true);
-      return () => clearTimeout(timer);
-    }
+    if (isStandalone) return;
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -52,49 +40,29 @@ const InstallPrompt: React.FC = () => {
     setDeferredPrompt(null);
   };
 
-  const handleClose = () => {
-    setShowPrompt(false);
-  };
-
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up">
-      <div className="bg-gradient-to-r from-indigo-900 to-purple-900 backdrop-blur-lg border-2 border-yellow-400/50 p-4 rounded-3xl shadow-[0_0_20px_rgba(168,85,247,0.4)] flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-yellow-400 p-2 rounded-xl shadow-lg">
-            <Sparkles className="w-6 h-6 text-indigo-900" />
-          </div>
-          <div>
-            <h3 className="font-black text-white text-base">마법 거울 보관하기</h3>
-            <p className="text-xs text-indigo-200 font-medium">
-              {isIOS 
-                ? "홈 화면에 추가해서 언제든 사용해봐요!" 
-                : "앱을 설치하고 친구들과 함께 놀아요!"}
-            </p>
-          </div>
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4 animate-slide-up">
+      <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-xl flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <p className="font-bold text-sm mb-0.5">앱 설치하기</p>
+          <p className="text-xs text-slate-400">더 빠르고 편하게 이용해보세요.</p>
         </div>
-
-        {isIOS ? (
-          <div className="flex items-center gap-2 text-xs text-white bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
-            <span><ShareIcon className="w-3 h-3 inline mb-0.5" /> 공유 &gt; 홈 화면에 추가</span>
-            <button onClick={handleClose} className="ml-2 text-indigo-200 hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
             <button
               onClick={handleInstallClick}
-              className="bg-yellow-400 hover:bg-yellow-300 text-indigo-900 text-sm font-black px-4 py-2 rounded-xl transition-all shadow-md transform hover:scale-105"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors"
             >
               설치
             </button>
-            <button onClick={handleClose} className="p-2 text-indigo-300 hover:text-white">
+            <button 
+              onClick={() => setShowPrompt(false)} 
+              className="text-slate-400 hover:text-white"
+            >
               <X className="w-5 h-5" />
             </button>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

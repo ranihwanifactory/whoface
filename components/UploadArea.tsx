@@ -1,5 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { Camera, Image as ImageIcon, X, Stars, Sparkles } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Camera, Image as ImageIcon, X, UploadCloud, Loader2 } from 'lucide-react';
 import { ImageFile } from '../types';
 
 interface UploadAreaProps {
@@ -9,12 +9,12 @@ interface UploadAreaProps {
 }
 
 const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage, isLoading }) => {
-  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const processFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 마법 거울에 보여줄 수 있어요! 🖼️');
+      alert('이미지 파일만 업로드 가능합니다.');
       return;
     }
 
@@ -33,27 +33,27 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage,
     reader.readAsDataURL(file);
   };
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processFile(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
-  }, []);
+  };
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
+  const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-  }, []);
+  };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       processFile(e.dataTransfer.files[0]);
-    }
-  }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
     }
   };
 
@@ -67,92 +67,79 @@ const UploadArea: React.FC<UploadAreaProps> = ({ onImageSelected, selectedImage,
 
   if (selectedImage) {
     return (
-      <div className="relative group w-full max-w-md mx-auto aspect-[3/4] sm:aspect-[4/5] rounded-[2rem] overflow-hidden border-[6px] border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] bg-slate-900 transition-all duration-300 transform hover:scale-[1.02]">
+      <div className="relative w-full max-w-sm mx-auto aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-slate-50 border border-slate-100">
         <img 
           src={selectedImage.preview} 
-          alt="미리보기" 
+          alt="Preview" 
           className="w-full h-full object-cover"
         />
         
-        {/* Decorative Shine */}
-        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent pointer-events-none"></div>
-
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/20 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
           {!isLoading && (
             <button 
               onClick={handleClear}
-              className="bg-red-500 hover:bg-red-600 text-white p-4 rounded-full shadow-lg transform hover:scale-110 transition-transform flex flex-col items-center"
+              className="bg-white/90 text-slate-700 px-4 py-2 rounded-full shadow-sm font-medium text-sm hover:bg-white transition-colors flex items-center gap-2"
             >
-              <X className="w-8 h-8" />
-              <span className="text-xs font-bold mt-1">다시 하기</span>
+              <X className="w-4 h-4" />
+              사진 변경
             </button>
           )}
         </div>
         
         {isLoading && (
-            <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center backdrop-blur-sm z-10">
-                <div className="relative mb-6">
-                    <div className="w-24 h-24 border-8 border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <Stars className="w-10 h-10 text-yellow-300 animate-pulse" />
-                    </div>
-                </div>
-                <p className="text-xl font-bold text-white animate-bounce">
-                  마법을 부리는 중... 🧙‍♀️
-                </p>
-                <p className="text-purple-300 mt-2 text-sm">조금만 기다려줘!</p>
-            </div>
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 text-center">
+            <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
+            <p className="text-lg font-bold text-slate-800">분석 중입니다</p>
+            <p className="text-slate-500 text-sm mt-2">얼굴 특징을 스캔하고 있어요...</p>
+          </div>
         )}
       </div>
     );
   }
 
   return (
-    <div
-      onClick={() => fileInputRef.current?.click()}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      className={`
-        w-full max-w-md mx-auto aspect-[4/5] rounded-[2.5rem] border-[6px] border-dashed cursor-pointer
-        flex flex-col items-center justify-center text-center p-6 transition-all duration-300 relative overflow-hidden
-        ${isDragging 
-          ? 'border-yellow-400 bg-yellow-400/20 scale-105 rotate-1' 
-          : 'border-white/40 bg-white/10 hover:border-white hover:bg-white/20 hover:-translate-y-2'
-        }
-      `}
-    >
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-        accept="image/*"
-      />
+    <div className="w-full max-w-sm mx-auto">
+      <div
+        onClick={() => fileInputRef.current?.click()}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`
+          aspect-[4/5] rounded-3xl border-2 border-dashed transition-all duration-300 cursor-pointer
+          flex flex-col items-center justify-center p-6 bg-white
+          ${isDragging 
+            ? 'border-indigo-400 bg-indigo-50' 
+            : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+          }
+        `}
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          accept="image/*"
+        />
+        
+        <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 text-slate-400">
+          <UploadCloud className="w-8 h-8" />
+        </div>
 
-      {/* Background Decor */}
-      <div className="absolute inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-purple-500 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-10 w-24 h-24 bg-pink-500 rounded-full blur-3xl"></div>
-      </div>
-      
-      <div className={`
-        w-28 h-28 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-xl
-        transform transition-transform duration-300 group-hover:scale-110 border-4 border-white/30
-        ${isDragging ? 'animate-bounce' : ''}
-      `}>
-        {isDragging ? <Camera className="w-12 h-12 text-white" /> : <ImageIcon className="w-12 h-12 text-white" />}
-      </div>
-
-      <h3 className="text-2xl font-black text-white mb-3 drop-shadow-md">
-        {isDragging ? '놓아주세요!' : '여기 얼굴 보여주기!'}
-      </h3>
-      
-      <div className="bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">
-        <p className="text-white font-bold flex items-center gap-2">
-           <Sparkles className="w-4 h-4 text-yellow-300" />
-           사진을 찰칵! 또는 드래그
+        <h3 className="text-lg font-bold text-slate-800 mb-2">사진 업로드</h3>
+        <p className="text-slate-500 text-sm text-center leading-relaxed max-w-[200px]">
+          터치하여 앨범에서 선택하거나<br/>카메라로 직접 촬영하세요
         </p>
+
+        <div className="mt-8 flex gap-3 w-full max-w-[240px]">
+          <div className="flex-1 bg-indigo-50 py-3 rounded-xl flex items-center justify-center gap-2 text-indigo-600 text-sm font-medium">
+            <Camera className="w-4 h-4" />
+            촬영
+          </div>
+          <div className="flex-1 bg-slate-100 py-3 rounded-xl flex items-center justify-center gap-2 text-slate-600 text-sm font-medium">
+            <ImageIcon className="w-4 h-4" />
+            앨범
+          </div>
+        </div>
       </div>
     </div>
   );
